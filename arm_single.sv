@@ -73,16 +73,17 @@
 //    1101  Signed less/equal             N != V | Z = 1
 //    1110  Always                        any
 
-module testbench();
+
+ module testbench();
 
   logic        clk;
   logic        reset;
 
-  logic [31:0] WriteData, DataAdr;
+  logic [31:0] WriteData, DataAdr; 
   logic        MemWrite;
 
   // instantiate device to be tested
-  top dut(clk, reset, WriteData, DataAdr,MemWrite); 
+  top dut(clk, reset, WriteData, DataAdr, MemWrite); 
   // initialize test
   initial
     begin
@@ -146,27 +147,28 @@ endmodule
 module arm(input  logic        clk, reset,
            output logic [31:0] PC,
            input  logic [31:0] Instr,
-           output logic        MemWrite,
+           output logic        MemWrite, MemByte, // Garante LOAD em BYTE no LDRB
            output logic [31:0] ALUResult, WriteData,
            input  logic [31:0] ReadData);
 
   logic [3:0] ALUFlags;
   logic       RegWrite, 
-              ALUSrc, MemtoReg, PCSrc;
-  logic [1:0] RegSrc, ImmSrc, ALUControl;
+              ALUSrcA, ALUSrcB, MemtoReg, PCSrc; // Controle do SrcA e SrcB para MOV
+  logic [1:0] RegSrc, ImmSrc, 
+  logic [2:0] ALUControl;
 
   controller c(clk, reset, Instr[31:12], ALUFlags, 
                RegSrc, RegWrite, ImmSrc, 
                ALUSrc, ALUControl,
                MemWrite, MemtoReg, PCSrc,
-               Shift);                            //SINAL DE CONTROLE DE SAIDA DO SHIFT NA CONTROL UNIT
+               Shift);                            //SINAL DE CONTROLE DE SAIDA DO SHIFT NA CONTROL UNIT E EOR
   datapath dp(clk, reset, 
               RegSrc, RegWrite, ImmSrc,
-              ALUSrc, ALUControl,
+              ALUSrcA, ALUSrcB, ALUControl,
               MemtoReg, PCSrc,
               ALUFlags, PC, Instr,
               ALUResult, WriteData, ReadData, 
-              Shift);                             //SINAL DE CONTROLE DE SAIDA DO SHIFT NO DATAPATH
+              Shift);                             //SINAL DE CONTROLE DE SAIDA DO SHIFT NO DATAPATH E EOR
 endmodule
 
 module controller(input  logic         clk, reset,
@@ -175,17 +177,17 @@ module controller(input  logic         clk, reset,
                   output logic [1:0]   RegSrc,
                   output logic         RegWrite,
                   output logic [1:0]   ImmSrc,
-                  output logic         ALUSrc, 
-                  output logic [1:0]   ALUControl,
-                  output logic         MemWrite, MemtoReg,
+                  output logic         ALUSrcA, ALUSrcB, 
+                  output logic [2:0]   ALUControl,
+                  output logic         MemWrite, MemtoReg,MemByte,
                   output logic         PCSrc,
                   output logic         Shift);            //SINAL DE CONTROLE DE SAIDA DO SHIFT NA CONTROL UNIT
   logic [1:0] FlagW;
   logic       PCS, RegW, MemW, NoWrite;                   // SINAL DE CONTROLE "NoWrite" NA CONTROL UNIT
   
   decoder dec(Instr[27:26], Instr[25:20], Instr[15:12],
-              FlagW, PCS, RegW, MemW, NoWrite, 			// ADD NoWrite no Decoder
-              MemtoReg, ALUSrc, ImmSrc, RegSrc, ALUControl, Shift); // ADD Shift no Decoder
+              FlagW, PCS, RegW, MemW, NoWrite,MemByte, 			// ADD NoWrite no Decoder
+              MemtoReg, ALUSrcA, ALUSrcB, ImmSrc, RegSrc, ALUControl, Shift); // ADD Shift no Decoder
   condlogic cl(clk, reset, Instr[31:28], ALUFlags,
                FlagW, PCS, RegW, MemW, NoWrite, 		// ADD NoWrite no Conditional Logic
                PCSrc, RegWrite, MemWrite);
@@ -194,14 +196,16 @@ endmodule
 module decoder(input  logic [1:0] Op,
                input  logic [5:0] Funct,
                input  logic [3:0] Rd,
+	       input  logic [11:0] Src2, // identifica se é MOV ou LSL
                output logic [1:0] FlagW,
-               output logic       PCS, RegW, MemW,
-               output logic	  NoWrite,		     // ADD NoWrite no Decoder
+               output logic       PCS, RegW, MemW,MemB,       //
+               output logic	  NoWrite,		     // ADD NoWrite no Decoder para CMP
                output logic       MemtoReg, ALUSrc,
-               output logic [1:0] ImmSrc, RegSrc, ALUControl,
-               output logic	  Shift);                // ADD Shift no Decoder
+               output logic [1:0] ImmSrc, RegSrc,
+	       output logic [2:0] ALUControl,		// alterei o ALUcontrol para executar o EOR --> BITWISE XOR
+               output logic	  Shift);                // ADD Shift no Decoder para LSL
 
-  logic [9:0] controls;
+  logic [11:0] controls;
   logic       Branch, ALUOp;
 
   // Main Decoder
@@ -209,50 +213,64 @@ module decoder(input  logic [1:0] Op,
   always_comb
   	case(Op)
   	                        // Data processing immediate
-  	  2'b00: if (Funct[5])  controls = 10'b0000101001; 
+  	  2'b00: if (Funct[5]) // immediate
+		    if((Funct[4:1] == 4'b1101)&(Src2[11:8] == 4'b0000)) controls = 12'b000011010000; // MOV com immediate
+		    else if ((Funct[5:1] == 5'b01101) & (Src2[6:5] == 00)) controls = 12'b000010010000; // LSL
+		    else   controls = 12'b000001010001; // Data processing immediate
   	                        // Data processing register
-  	         else           controls = 10'b0000001001; 
-  	                        // LDR
-  	  2'b01: if (Funct[0])  controls = 10'b0001111000; 
-  	                        // STR
-  	         else           controls = 10'b1001110100; 
-  	                        // B
-  	  2'b10:                controls = 10'b0110100010; 
-  	                        // Unimplemented
-  	  default:              controls = 10'bx;          
+  	         else if(Src2[11:4] == 8'b00000000) controls = 12'b000010010000; // MOV com registrador         
+		 else    controls = 12'b000000010001; // Data processing register
+  	                        
+  	  2'b01: if (Funct[0]) // Load memory
+			if (~Funct[5])  /// immediate 
+				if (Funct[2]) controls = 12'b000101110100; // LDRB --> BYTE // SrcA e SrcB
+				else 	      controls = 12'b000101110000; // LDR
+			else   
+				if (Funct[2]) controls = 12'b000100110100; // LDRB --> BYTE // SrcA e SrcB
+				else 	      controls = 12'b000100110000; // LDR
+  	                        
+  	         else           
+			if (~Funct[5])  controls = 12'b100101101000; // STR /// immediate
+  	                else            controls = 12'b000100101000; // STR reg
+  	  
+	  2'b10:                controls = 12'b011001000010; // Brench
+  	                        
+  	  default:              controls = 12'bx;  // Unimplemented        
   	endcase
 
-  assign {RegSrc, ImmSrc, ALUSrc, MemtoReg, 
-          RegW, MemW, Branch, ALUOp} = controls; 
+  assign {RegSrc, ImmSrc, ALUSrcA,ALUSrcB, MemtoReg, MemB, // ADD --> ALUSrcA,ALUSrcB e MemB para MOV e LDRB respectivamente.
+          RegW, MemW, Branch, ALUOp} = controls;  /// Determina as variaveis de entrada do datapath
           
   // ALU Decoder             
   always_comb
     if (ALUOp) begin                      // which DP Instr?
-      case(Funct[4:1])
-            4'b0100: ALUControl = 2'b00; // ADD
-            4'b0010: ALUControl = 2'b01; // SUB
-            4'b0000: ALUControl = 2'b10; // AND
-            4'b1000: ALUControl = 2'b10; // TST <- adequação na tabela da verdade do ALUDecoder
-            4'b1010: ALUControl = 2'b01; // CMP <- adequação na tabela da verdade do ALUDecoder
-            4'b1100: ALUControl = 2'b11; // ORR
-            default: ALUControl = 2'bx;  // unimplemented
+      case(Funct[4:1]) // Aumentou a quantidade bits de ALUControl para executar EOR
+            4'b0100: ALUControl = 3'b000; // ADD
+            4'b0010: ALUControl = 3'b001; // SUB
+            4'b0000: ALUControl = 3'b010; // AND
+	    4'b0001: ALUControl = 3'b100; // EOR
+            4'b1000: ALUControl = 3'b010; // TST <- flags baseado no AND
+            4'b1010: ALUControl = 3'b001; // CMP <- flags baseado no SUB
+            4'b1100: ALUControl = 3'b011; // ORR
+            default: ALUControl = 3'b0x;  // unimplemented
       endcase
 
 	case(Funct[4:1])             //tabela da verdade do sinal de controle NoWrite
   	    4'b0100: NoWrite = 1'b0; // ADD
   	    4'b0010: NoWrite = 1'b0; // SUB
   	    4'b0000: NoWrite = 1'b0; // AND
+	    4'b0001: NoWrite = 1'b0; 	// EOR		
   	    4'b1000: NoWrite = 1'b1; // TST
   	    4'b1010: NoWrite = 1'b1; // CMP
   	    4'b1100: NoWrite = 1'b0; // ORR
-	    4'b1101: NoWrite = 1'b0; // LSL 
+	    4'b1101: NoWrite = 1'b0; // LSL ou MOV
   	    default: NoWrite = 1'b0; // unimplemented
       endcase
 
-      if(Funct[4:1] == 4'b1101) begin //tabela da verdade do sinal de controle Shift
+      if((Funct[5:1] == 5'b01101) & (Src2[6:5] == 00) & (Src2[11:7] != 00000)) begin //tabela da verdade do sinal de controle Shift e garantia que seja só LSL e não o MOV  
 	    Shift = 1'b1;
       end
-      else if(Funct[4:1] != 4'b1101) begin
+      else if(Funct[5:1] != 4'b01101) begin
 	    Shift = 1'b0;
       end 
 
@@ -330,8 +348,8 @@ module datapath(input  logic        clk, reset,
                 input  logic [1:0]  RegSrc,
                 input  logic        RegWrite,
                 input  logic [1:0]  ImmSrc,
-                input  logic        ALUSrc,
-                input  logic [1:0]  ALUControl,
+                input  logic        ALUSrcA, ALUSrcB,
+                input  logic [2:0]  ALUControl,
                 input  logic        MemtoReg,
                 input  logic        PCSrc,
                 output logic [3:0]  ALUFlags,
@@ -365,8 +383,9 @@ module datapath(input  logic        clk, reset,
   // shifter
   shifter     shifter(SrcA,Instr[11:7],ShiftResult);  //IMPLEMENTANDO O SHIFTER
 
+
   // ALU logic
-  mux2 #(32)  srcbmux(WriteData, ExtImm, ALUSrc, SrcB);
+  mux2 #(32)  srcbmux(WriteData, ExtImm, ALUSrcA, ALUSrcB, SrcB);
   alu         alu(SrcA, SrcB, ALUControl, 
                   ALUResult, ALUFlags);
 endmodule
@@ -375,7 +394,7 @@ module regfile(input  logic        clk,
                input  logic        we3, 
                input  logic [3:0]  ra1, ra2, wa3, 
                input  logic [31:0] wd3, r15,
-               output logic [31:0] rd1, rd2);		
+               output logic [31:0] rd1, rd2, rd3);		
 
   logic [31:0] rf[14:0];
 
@@ -389,6 +408,8 @@ module regfile(input  logic        clk,
 
   assign rd1 = (ra1 == 4'b1111) ? r15 : rf[ra1];
   assign rd2 = (ra2 == 4'b1111) ? r15 : rf[ra2];
+  assign rd3 = (wa3 == 4'b1111) ? r15 : rf[wa3]; // MOV
+
   							
 endmodule
 
@@ -435,7 +456,7 @@ module flopr #(parameter WIDTH = 8)
     else       q <= d;
 endmodule
 
-module shifter(	input logic [31:0] In,   //IMPLEMENTANDO O SHIFTER
+module shifter(	input logic [31:0] In,   //Logica do shifter
 		input logic [4:0] shamt5,
 		output logic [31:0] Out);
 
@@ -451,7 +472,7 @@ module mux2 #(parameter WIDTH = 8)
 endmodule
 
 module alu(input  logic [31:0] a, b,
-           input  logic [1:0]  ALUControl,
+           input  logic [2:0]  ALUControl,
            output logic [31:0] Result,
            output logic [3:0]  ALUFlags);
 
@@ -463,10 +484,12 @@ module alu(input  logic [31:0] a, b,
   assign sum = a + condinvb + ALUControl[0];
 
   always_comb
-    casex (ALUControl[1:0])
-      2'b0?: Result = sum;
-      2'b10: Result = a & b;
-      2'b11: Result = a | b;
+    casex (ALUControl[2:0])
+      3'b00?: Result = sum;
+      3'b010: Result = a & b;
+      3'b011: Result = a | b;
+      3'b100: Result = a ^ b;//--> BITWISE XOR
+      default: Result = 32'bx;
     endcase
 
   assign neg      = Result[31];
@@ -477,3 +500,4 @@ module alu(input  logic [31:0] a, b,
                     (a[31] ^ sum[31]); 
   assign ALUFlags    = {neg, zero, carry, overflow};
 endmodule
+
