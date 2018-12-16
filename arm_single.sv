@@ -115,10 +115,10 @@ module top(input  logic        clk, reset,
   logic [31:0] PC, Instr, ReadData;
   
   // instantiate processor and memories
-  arm arm(clk, reset, PC, Instr, MemWrite, DataAdr,
+  arm arm(clk, reset, PC, Instr, MemWrite, MemByte, DataAdr, // Garante LOAD em BYTE no LDRB
           WriteData, ReadData);
   imem imem(PC, Instr);
-  dmem dmem(clk, MemWrite, DataAdr, WriteData, ReadData);
+  dmem dmem(clk, MemWrite, MemByte, DataAdr, WriteData, ReadData);
 endmodule
 
 module dmem(input  logic        clk, we,
@@ -196,7 +196,7 @@ endmodule
 module decoder(input  logic [1:0] Op,
                input  logic [5:0] Funct,
                input  logic [3:0] Rd,
-	       input  logic [11:0] Src2, // identifica se é MOV ou LSL
+	       input  logic [11:0] Src2, // identifica se ï¿½ MOV ou LSL
                output logic [1:0] FlagW,
                output logic       PCS, RegW, MemW,MemB,       //
                output logic	  NoWrite,		     // ADD NoWrite no Decoder para CMP
@@ -267,7 +267,7 @@ module decoder(input  logic [1:0] Op,
   	    default: NoWrite = 1'b0; // unimplemented
       endcase
 
-      if((Funct[5:1] == 5'b01101) & (Src2[6:5] == 00) & (Src2[11:7] != 00000)) begin //tabela da verdade do sinal de controle Shift e garantia que seja só LSL e não o MOV  
+      if((Funct[5:1] == 5'b01101) & (Src2[6:5] == 00) & (Src2[11:7] != 00000)) begin //tabela da verdade do sinal de controle Shift e garantia que seja sï¿½ LSL e nï¿½o o MOV  
 	    Shift = 1'b1;
       end
       else if(Funct[5:1] != 4'b01101) begin
@@ -294,7 +294,7 @@ module condlogic(input  logic       clk, reset,
                  input  logic [3:0] ALUFlags,
                  input  logic [1:0] FlagW,
                  input  logic       PCS, RegW, MemW,
-		 input  logic 	    NoWrite,        //ADD NoWrite NO CONDLOGIC
+		             input  logic 	    NoWrite,        //ADD NoWrite NO CONDLOGIC
                  output logic       PCSrc, RegWrite, MemWrite);
                  
   logic [1:0] FlagWrite;
@@ -357,7 +357,7 @@ module datapath(input  logic        clk, reset,
                 input  logic [31:0] Instr,
                 output logic [31:0] ALUResult, WriteData,
                 input  logic [31:0] ReadData,
-		input  logic 	    Shift);   //ADD Shift no Datapath
+		            input  logic        Shift);   //ADD Shift no Datapath
 
   logic [31:0] PCNext, PCPlus4, PCPlus8;
   logic [31:0] ExtImm, SrcA, SrcB, Result, Result_shift, ShiftResult;
@@ -371,13 +371,13 @@ module datapath(input  logic        clk, reset,
 
   // register file logic
   mux2 #(4)   ra1mux(Instr[19:16], 4'b1111, RegSrc[0], RA1_shift);//encaminhamento da saida do RA1mux para o novo mux
-  mux2 #(4)   ra1mux_shift(RA1_shift, Instr[3:0], Shift, RA1);    //implementação de um novo mux para a instrução LSL
+  mux2 #(4)   ra1mux_shift(RA1_shift, Instr[3:0], Shift, RA1);    //implementaï¿½ï¿½o de um novo mux para a instruï¿½ï¿½o LSL
   mux2 #(4)   ra2mux(Instr[3:0], Instr[15:12], RegSrc[1], RA2);
   regfile     rf(clk, RegWrite, RA1, RA2,
                  Instr[15:12], Result, PCPlus8, 
                  SrcA, WriteData); 				     
   mux2 #(32)  resmux(ALUResult, ReadData, MemtoReg, Result_shift);   //encaminhamento da saida do RESmux para o novo mux
-  mux2 #(32)  resmux_shift(Result_shift, ShiftResult, Shift, Result);//implementação de um novo mux para a instrução LSL
+  mux2 #(32)  resmux_shift(Result_shift, ShiftResult, Shift, Result);//implementaï¿½ï¿½o de um novo mux para a instruï¿½ï¿½o LSL
   extend      ext(Instr[23:0], ImmSrc, ExtImm);
   
   // shifter
