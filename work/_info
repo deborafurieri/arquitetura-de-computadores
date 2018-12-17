@@ -1,0 +1,467 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/raven/ARMProcessors/arquitetura-de-computadores
+vadder
+Z1 DXx6 sv_std 3 std 0 22 WmjPaeP=7F5?QFXzJ>D[Q2
+Z2 !s110 1545057217
+!i10b 1
+!s100 LJPWGW>GKcQVgPLD=A6mN1
+If<lIFeeT26>:daIDzG@?P3
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+Z4 !s105 arm_single_v5_sv_unit
+S1
+R0
+Z5 w1545056991
+Z6 8C:/Users/raven/ARMProcessors/arquitetura-de-computadores/arm_single_v5.sv
+Z7 FC:/Users/raven/ARMProcessors/arquitetura-de-computadores/arm_single_v5.sv
+L0 460
+Z8 OP;L;10.4a;61
+r1
+!s85 0
+31
+Z9 !s108 1545057217.000000
+Z10 !s107 C:/Users/raven/ARMProcessors/arquitetura-de-computadores/arm_single_v5.sv|
+Z11 !s90 -reportprogress|300|-work|work|C:/Users/raven/ARMProcessors/arquitetura-de-computadores/arm_single_v5.sv|
+!s101 -O0
+!i113 1
+Z12 o-work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+valu
+R1
+R2
+!i10b 1
+!s100 bXRCjG_QnRl9mCTJ[LAz^1
+IbSgKbQzY0J[MT@mZP_JWO3
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 497
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+valuV2
+R1
+!s110 1545033608
+!i10b 1
+!s100 N=mSaz:6:2;^WOe1E;X=c1
+IYQ:jjj_WmLIQSR4:FG]SI3
+R3
+R4
+S1
+R0
+w1545033508
+R6
+R7
+L0 567
+R8
+r1
+!s85 0
+31
+!s108 1545033607.000000
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+nalu@v2
+varm
+R1
+R2
+!i10b 1
+!s100 G6dF=INW[A^fjR;Il`[8X3
+I`<E@gdLa[KGfTQPCAZ4@@2
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 168
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vcondcheck
+R1
+R2
+!i10b 1
+!s100 B`N][FjJ<S]P7Ybn8SI7F2
+I_HP2R2AQ=<Xl^I3BBS6<C1
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 330
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vcondlogic
+R1
+R2
+!i10b 1
+!s100 I1o8I3^hWUDTG<;H8Uef@0
+I[<53KbWgI:KMUnjd91RKe3
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 305
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vcontroller
+R1
+R2
+!i10b 1
+!s100 KJ<YC?2^1F1S0Hdb`6e8i2
+I1zidmI7AfK_z:J1DD>TL=0
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 193
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vdatapath
+R1
+R2
+!i10b 1
+!s100 XKMombBgnbAN_HQc95O^g0
+I^f51^BF4[JnNO:=@M:`UP1
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 360
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vdecoder
+R1
+R2
+!i10b 1
+!s100 F>_RiQ<78AX2gW5YQ`ZNe3
+I7KYebMoMIF5GSe0TW105h3
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 217
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vdmem
+R1
+R2
+!i10b 1
+!s100 eaYUA[FmI4Chjd>[aOWHE0
+IZZ>ZFlB0mFg3g?cTIWmzl0
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 129
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vextend
+R1
+R2
+!i10b 1
+!s100 <H6K?a@QQJjDU?_Ro7?Rg2
+IoJ3Wz[=H@]ZAl184HS:UI3
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 443
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vflopenr
+R1
+R2
+!i10b 1
+!s100 4RicFHBzEmz9Y0Dl8Do;e3
+I5hj]cBF^420_2Og8aTnzE1
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 467
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vflopr
+R1
+R2
+!i10b 1
+!s100 R[9WW[^EXF;oW9e32D]E30
+I;1:XF9z3lAO5]i26>K<Ll3
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 478
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vimem
+R1
+R2
+!i10b 1
+!s100 D4XYLWiY2BO8DE^6m[Mhe2
+IE277m2Mog7b>e<djV2aeD1
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 157
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vmux2
+R1
+R2
+!i10b 1
+!s100 =>l@;Oc?R]7[04oO]IeFG1
+IMTDcObc`;A@V?<c6Fn7LX0
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 489
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vregfile
+R1
+R2
+!i10b 1
+!s100 zV]EXLiAY_RJ]c5U28IR30
+Ik6TMJINiG1]_@:SiXYQhE1
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 408
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vshifter
+R1
+R2
+!i10b 1
+!s100 aXY@=A<J:IPH[o4j2RId<1
+I=>O;zD^WG?GDm`l[VfUE;2
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 430
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vtestbench
+R1
+R2
+!i10b 1
+!s100 =]Y7Mmzn72NzaZJ:dFl9l0
+IXWE2;]NS?SKlATdI6zI8Z1
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 76
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
+vtop
+R1
+R2
+!i10b 1
+!s100 2RA6Q`o>FB[U5LV82cbK62
+IP;^>>VIXKO97MO?BFNK:92
+R3
+R4
+S1
+R0
+R5
+R6
+R7
+L0 115
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+!i113 1
+R12
